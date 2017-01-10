@@ -28,19 +28,36 @@ public class MQArrayTable {
 	TableClass table = new TableClass();
 
 	/**
-	 * 添加一行
+	 * 添加一行[含有下线]
 	 * @param array Object[]
 	 */
-	public void put(Object... array) {
-		table.put(array);
+	public void append(Object... array) {
+		table.append(false, array);
+	}
+
+	/**
+	 * 添加一行[取消下线]<br/>
+	 * @param array Object[]
+	 */
+	public void appendUnline(Object... array) {
+		table.append(true, array);
 	}
 
 	/**
 	 * 添加一行
 	 * @param e LineClass
 	 */
-	public void put(LineClass e) {
-		table.put(e);
+	public void append(LineClass e) {
+		table.append(e);
+	}
+
+	/**
+	 * 插入一行
+	 * @param index int
+	 * @param e LineClass
+	 */
+	public void insert(int index, LineClass e) {
+		table.insert(index, e);
 	}
 
 	/**
@@ -92,21 +109,58 @@ public class MQArrayTable {
 		List<LineClass> rowList = new ArrayList<LineClass>();
 
 		/**
+		 * 添加一行<br/>
+		 * cancel:取消下线<br/>
+		 * @param cancel boolean
+		 * @param array Object[]
+		 */
+		private void append(boolean cancel, Object... array) {
+			if (array.length == 0) return;
+			LineClass e = new LineClass(cancel, array);
+			append(e);
+		}
+
+		/**
 		 * 添加一行
 		 * @param array Object[]
 		 */
-		void put(Object... array) {
-			if (array.length == 0) return;
-			LineClass e = new LineClass(array);
-			put(e);
+		void append(Object... array) {
+			append(false, array);
+		}
+
+		/**
+		 * 添加一行
+		 * @param array Object[]
+		 */
+		void appendUnline(Object... array) {
+			append(true, array);
 		}
 
 		/**
 		 * 添加一行
 		 * @param e LineClass
 		 */
-		void put(LineClass e) {
+		void append(LineClass e) {
 			if (e != null) rowList.add(e);
+		}
+
+		/**
+		 * 插入一行
+		 * @param index int
+		 * @param e LineClass
+		 */
+		void insert(int index, LineClass e) {
+			if (e == null) return;
+			int len = rowList.size();
+			if (index >= 0 && index < len) {
+				List<LineClass> newRowList = new ArrayList<LineClass>(len + 1);
+				if (index > 0) newRowList.addAll(rowList.subList(0, index));
+				newRowList.add(e);
+				if (index < len) newRowList.addAll(rowList.subList(index, len));
+				rowList = newRowList;
+			}
+			if (index < 0) insert(0, e);
+			if (index >= len) rowList.add(e);
 		}
 
 		/**
@@ -211,7 +265,7 @@ public class MQArrayTable {
 				x = location[i];
 				y = location[i + 1];
 				UnitClass e = getUnit(x, y);
-				if (e != null) 	e.align = align;
+				if (e != null) e.align = align;
 			}
 		}
 
@@ -249,7 +303,7 @@ public class MQArrayTable {
 				LineClass e = rowList.get(i);
 				sb.append(e.print(widths));
 				sb.append(ACC_newline);
-				sb.append(partLine);
+				if (!e.cancel) sb.append(partLine);
 			}
 			return sb.toString();
 		}
@@ -325,8 +379,11 @@ public class MQArrayTable {
 
 		/** 设置一行中的各个单元格 */
 		List<UnitClass> list = new ArrayList<UnitClass>();
+		/** 是否取消下线 */
+		boolean cancel = false;
 
-		public LineClass(Object... array) {
+		public LineClass(boolean cancel, Object... array) {
+			this.cancel = cancel;
 			for (int i = 0, len = array.length; i < len; i++)
 				if (array[i] != null) list.add(new UnitClass(array[i]));
 		}

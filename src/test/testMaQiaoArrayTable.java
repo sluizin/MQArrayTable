@@ -19,11 +19,11 @@ public class testMaQiaoArrayTable {
 	@Test
 	public void test6(){
 		MQArrayTable table=new MQArrayTable();
-		table.put("step:2");
-		table.put("state","123");
-		table.put("state","keyword","456");
-		table.put("stat1111e","keyword","oldValue","newValue");
-		table.put("normal","test1:size->xx ",20,1.5);
+		table.append("step:2");
+		table.append("state","123");
+		table.appendUnline("state","keyword","456");
+		table.append("stat1111e","keyword","oldValue","newValue");
+		table.append("normal","test1:size->xx ",20,1.5);
 		table.setAlignColumns(Align.center, 1,3);
 		table.setAlignColumns(Align.right, 2);
 		table.setAlignColumnsLocation(Align.right, 2,1,4,3,1);
